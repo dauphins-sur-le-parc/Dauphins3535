@@ -72,7 +72,14 @@ export function initLanguage() {
 
   btnEn.addEventListener('click', () => updateDOM('en'));
   btnFr.addEventListener('click', () => updateDOM('fr'));
-  updateDOM(localStorage.getItem('preferred-lang') || 'fr');
+
+  // Priority: URL parameter > localStorage > default 'fr'
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  const initialLang = urlLang === 'en' || urlLang === 'fr'
+    ? urlLang
+    : (localStorage.getItem('preferred-lang') || 'fr');
+  updateDOM(initialLang);
 }
 
 /* ========== LIGHTBOX ========== */

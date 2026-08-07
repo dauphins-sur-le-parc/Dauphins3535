@@ -72,7 +72,7 @@ window.translations = {
 
     "title_faq": "Foire aux questions",
     "faq_admin_title": "Bureau de l'administration",
-    "faq_admin_hours": "Lundi au vendredi : 9h00 à 17h00",
+    "faq_admin_hours": "Du lundi au jeudi : 11h à 12h et 13h à 15h • vendredi : 9h à 12h",
     "faq_pool_title": "Piscine & Gym",
     "faq_pool_hours": "Tous les jours : 6h00 à 22h00",
     "planner_legend_cleaning": "■ Période de nettoyage",
@@ -244,7 +244,7 @@ window.translations = {
 
     "title_faq": "Frequently Asked Questions",
     "faq_admin_title": "Administration Office",
-    "faq_admin_hours": "Monday to Friday: 9:00 AM to 5:00 PM",
+    "faq_admin_hours": "Monday to Thursday: 11 AM to 12 PM and 1 PM to 3 PM • Friday: 9 AM to 12 PM",
     "faq_pool_title": "Pool & Gym",
     "faq_pool_hours": "Daily: 6:00 AM to 10:00 PM",
     "planner_legend_cleaning": "■ Cleaning time",

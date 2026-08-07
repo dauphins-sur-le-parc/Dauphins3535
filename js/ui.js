@@ -158,6 +158,13 @@ export function initScrollReveal() {
   });
 }
 
+/* Affiche les heures sans les minutes quand elles sont :00 (ex: 11:00 AM → 11 AM) */
+function formatHoursDisplay(val) {
+  const stripMinutes = (s) => String(s).replace(/(\d{1,2}):00(?=\s*(?:AM|PM))/gi, '$1');
+  if (Array.isArray(val)) return val.map(stripMinutes).join(' & ');
+  return stripMinutes(val);
+}
+
 /* Helper to parse "08:00 AM - 06:00 PM" into { open: 8, close: 18 } */
 function parseTimeRanges(value) {
   if (!value) return null;
@@ -286,18 +293,12 @@ export function initDayPlanners(faqData = {}) {
         const dayHoliday = isDateHoliday(holidays, weekDates[i], type);
         const display = dayHoliday
           ? `${lang === 'fr' ? 'Fermé' : 'Closed'} — ${escapeHtml(dayHoliday)}`
-          : (Array.isArray(val) ? val.join(' & ') : val);
+          : (type === 'admin' ? formatHoursDisplay(val) : (Array.isArray(val) ? val.join(' & ') : val));
         const cls = (dayHoliday ? 'bh-holiday' : '') + (i === currentDay ? ' bh-today' : '');
         return `<div class="bh-row${cls ? ' ' + cls : ''}"><span class="bh-day">${labels[i]}</span><span class="bh-time">${escapeHtml(display)}</span></div>`;
       }).join('');
 
-      // Note pause dîner (bureau administration) sous la liste des jours
-      let lunchNote = '';
-      if (type === 'admin') {
-        const lunchText = window.translations?.[lang]?.['faq_admin_lunch_note'];
-        if (lunchText) lunchNote = `<p class="cleaning-note">${escapeHtml(lunchText)}</p>`;
-      }
-      infoBox.innerHTML = `${holidayNote}<div class="hours-list">${hoursListHtml}</div>${lunchNote}${noteHtml}`;
+      infoBox.innerHTML = `${holidayNote}<div class="hours-list">${hoursListHtml}</div>${noteHtml}`;
 
       // Status: holiday overrides normal open/closed
       let status, statusText;

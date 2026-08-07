@@ -41,11 +41,7 @@ export function isCurrentlyOpen(businessHours, closures) {
   const dayIdx = now.getDay(); // 0=Sun, 1=Mon, ...
   const dayKey = DAY_KEYS[dayIdx === 0 ? 6 : dayIdx - 1]; // Convert to monday..sunday
   const todayHours = businessHours[dayKey];
-  if (!todayHours || todayHours.toLowerCase() === 'closed') return 'closed';
-
-  // Parse "08:00 AM - 06:00 PM"
-  const parts = todayHours.split('-').map(s => s.trim());
-  if (parts.length !== 2) return 'closed';
+  if (!todayHours) return 'closed';
 
   const parseTime = (str) => {
     const match = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
@@ -58,29 +54,39 @@ export function isCurrentlyOpen(businessHours, closures) {
     return h * 60 + m; // minutes since midnight
   };
 
-  const openMin = parseTime(parts[0]);
-  const closeMin = parseTime(parts[1]);
-  if (openMin === null || closeMin === null) return 'closed';
-
   const nowMin = now.getHours() * 60 + now.getMinutes();
 
-  // Check if within regular hours
-  if (nowMin < openMin || nowMin >= closeMin) return 'closed';
-
-  // Check if within a closure period
+  // Check if within a closure period (pause dîner, nettoyage, etc.)
   if (closures && closures[dayKey]) {
-    const closureParts = closures[dayKey].split('-').map(s => s.trim());
+    const closureParts = String(closures[dayKey]).split('-').map(s => s.trim());
     if (closureParts.length === 2) {
       const closeStart = parseTime(closureParts[0]);
       const closeEnd = parseTime(closureParts[1]);
-      if (closeStart !== null && closeEnd !== null) {
-        if (nowMin >= closeStart && nowMin < closeEnd) return 'closed';
+      if (closeStart !== null && closeEnd !== null && nowMin >= closeStart && nowMin < closeEnd) {
+        return 'closed';
       }
     }
   }
 
+  // Accept a single string or an array of ranges ("08:00 AM - 06:00 PM")
+  const rangeStrings = Array.isArray(todayHours) ? todayHours : [todayHours];
+  let withinAny = false;
+  let nextCloseMin = Infinity;
+  for (const rangeStr of rangeStrings) {
+    if (!rangeStr || rangeStr.toLowerCase() === 'closed') continue;
+    const parts = rangeStr.split('-').map(s => s.trim());
+    if (parts.length !== 2) continue;
+    const openMin = parseTime(parts[0]);
+    const closeMin = parseTime(parts[1]);
+    if (openMin === null || closeMin === null) continue;
+    if (nowMin >= openMin && nowMin < closeMin) withinAny = true;
+    if (closeMin > nowMin) nextCloseMin = Math.min(nextCloseMin, closeMin);
+  }
+
+  if (!withinAny) return 'closed';
+
   // Closing within 60 minutes?
-  if (closeMin - nowMin <= 60) return 'closing-soon';
+  if (nextCloseMin - nowMin <= 60) return 'closing-soon';
 
   return 'open';
 }

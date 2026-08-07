@@ -286,12 +286,18 @@ export function initDayPlanners(faqData = {}) {
         const dayHoliday = isDateHoliday(holidays, weekDates[i], type);
         const display = dayHoliday
           ? `${lang === 'fr' ? 'Fermé' : 'Closed'} — ${escapeHtml(dayHoliday)}`
-          : val;
+          : (Array.isArray(val) ? val.join(' & ') : val);
         const cls = (dayHoliday ? 'bh-holiday' : '') + (i === currentDay ? ' bh-today' : '');
         return `<div class="bh-row${cls ? ' ' + cls : ''}"><span class="bh-day">${labels[i]}</span><span class="bh-time">${escapeHtml(display)}</span></div>`;
       }).join('');
 
-      infoBox.innerHTML = `${holidayNote}<div class="hours-list">${hoursListHtml}</div>${noteHtml}`;
+      // Note pause dîner (bureau administration) sous la liste des jours
+      let lunchNote = '';
+      if (type === 'admin') {
+        const lunchText = window.translations?.[lang]?.['faq_admin_lunch_note'];
+        if (lunchText) lunchNote = `<p class="cleaning-note">${escapeHtml(lunchText)}</p>`;
+      }
+      infoBox.innerHTML = `${holidayNote}<div class="hours-list">${hoursListHtml}</div>${lunchNote}${noteHtml}`;
 
       // Status: holiday overrides normal open/closed
       let status, statusText;
@@ -359,7 +365,7 @@ export function initDayPlanners(faqData = {}) {
 
     // Add cleaning legend if closures exist
     if (closuresData && Object.values(closuresData).some(v => v)) {
-      const legendKey = `planner_legend_cleaning`;
+      const legendKey = type === 'admin' ? `planner_legend_lunch` : `planner_legend_cleaning`;
       const legendText = window.translations?.[lang]?.[legendKey] || '■ Cleaning time';
       const existingLegend = planner.parentElement.querySelector('.planner-legend');
       if (!existingLegend) {

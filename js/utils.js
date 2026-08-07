@@ -26,12 +26,18 @@ export function getDayLabels(lang = 'fr') {
   return DAY_KEYS.map(k => t(`day_${k}`));
 }
 
+/* Localise le jeton "Closed" à l'affichage (page FR → "Fermé") */
+export function localizeClosed(value, lang = 'fr') {
+  if (lang !== 'fr' || typeof value !== 'string') return value;
+  return value.replace(/\bClosed\b/gi, 'Fermé');
+}
+
 export function formatBusinessHours(hoursObj, lang = 'fr') {
   const labels = getDayLabels(lang);
   return DAY_KEYS.map((day, i) => {
     const val = hoursObj[day];
     if (!val) return '';
-    const display = Array.isArray(val) ? val.join(' & ') : val;
+    const display = localizeClosed(Array.isArray(val) ? val.join(' & ') : val, lang);
     return `<div class="bh-row"><span class="bh-day">${labels[i]}</span><span class="bh-time">${escapeHtml(display)}</span></div>`;
   }).join('');
 }

@@ -1,4 +1,4 @@
-import { formatBusinessHours, escapeHtml, getDayLabels, isCurrentlyOpen, getLocalDateStr } from './utils.js';
+import { formatBusinessHours, escapeHtml, getDayLabels, isCurrentlyOpen, getLocalDateStr, localizeClosed } from './utils.js';
 
 /* ========== SIDEBAR MENU ========== */
 export function initMenu() {
@@ -293,7 +293,7 @@ export function initDayPlanners(faqData = {}) {
         const dayHoliday = isDateHoliday(holidays, weekDates[i], type);
         const display = dayHoliday
           ? `${lang === 'fr' ? 'Fermé' : 'Closed'} — ${escapeHtml(dayHoliday)}`
-          : (type === 'admin' ? formatHoursDisplay(val) : (Array.isArray(val) ? val.join(' & ') : val));
+          : localizeClosed(type === 'admin' ? formatHoursDisplay(val) : (Array.isArray(val) ? val.join(' & ') : val), lang);
         const cls = (dayHoliday ? 'bh-holiday' : '') + (i === currentDay ? ' bh-today' : '');
         return `<div class="bh-row${cls ? ' ' + cls : ''}"><span class="bh-day">${labels[i]}</span><span class="bh-time">${escapeHtml(display)}</span></div>`;
       }).join('');

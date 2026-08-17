@@ -16,6 +16,7 @@ window.translations = {
     "nav_neighborhood": "Vie de quartier",
     "nav_contractors": "Entrepreneurs approuvés",
     "contractors_intro": "Fournisseurs et entrepreneurs approuvés par l'administration pour les travaux et services de l'immeuble.",
+    "contractors_view_all": "Voir les entrepreneurs approuvés →",
 
     // Hero
     "hero_subtitle": "Immeuble à condos et galerie commerciale",
@@ -190,6 +191,7 @@ window.translations = {
     "nav_neighborhood": "Neighborhood Life",
     "nav_contractors": "Approved Contractors",
     "contractors_intro": "Suppliers and contractors approved by the administration for the building's work and services.",
+    "contractors_view_all": "View approved contractors →",
 
     // Hero
     "hero_subtitle": "Condo building and commercial gallery",

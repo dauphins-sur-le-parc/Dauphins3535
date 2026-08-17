@@ -17,6 +17,9 @@ window.translations = {
     "nav_contractors": "Entrepreneurs approuvés",
     "contractors_intro": "Fournisseurs et entrepreneurs approuvés par l'administration pour les travaux et services de l'immeuble.",
     "contractors_view_all": "Voir les entrepreneurs approuvés →",
+    "contractors_disclaimer_1": "Le Syndicat ne recommande, n'endosse ni ne garantit le travail des entreprises listées.",
+    "contractors_disclaimer_2": "Les copropriétaires sont entièrement responsables de vérifier les qualifications, les assurances et les références des entrepreneurs qu'ils engagent.",
+    "contractors_disclaimer_3": "La liste est fournie à titre purement informatif sans aucun lien commercial entre le Syndicat et les entreprises.",
 
     // Hero
     "hero_subtitle": "Immeuble à condos et galerie commerciale",
@@ -193,6 +196,9 @@ window.translations = {
     "nav_contractors": "Approved Contractors",
     "contractors_intro": "Suppliers and contractors approved by the administration for the building's work and services.",
     "contractors_view_all": "View approved contractors →",
+    "contractors_disclaimer_1": "The Association does not recommend, endorse, or guarantee the work of the companies listed.",
+    "contractors_disclaimer_2": "Condo owners are solely responsible for verifying the qualifications, insurance, and references of the contractors they hire.",
+    "contractors_disclaimer_3": "This list is provided for informational purposes only, with no commercial relationship between the Association and the companies.",
 
     // Hero
     "hero_subtitle": "Condo building and commercial gallery",

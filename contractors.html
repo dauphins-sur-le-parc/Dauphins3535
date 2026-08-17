@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrepreneurs approuvés — Les Dauphins-sur-le-Parc</title>
+  <link rel="icon" type="image/webp" href="assets/logo-menu.webp">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; color: #3A2404; background: #fafafa; }
+    .content-box { opacity: 1 !important; transform: none !important; }
+    .main-content { min-height: 100vh; display: flex; flex-direction: column; }
+    #contractors-page { flex: 1; padding: 4rem 1rem 1rem !important; }
+    .ctr-footer { flex-shrink: 0; height: 80px; display: flex; align-items: center; justify-content: center; }
+    .ctr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+    .ctr-card { background: #fff; border: 1px solid #D3D8D6; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; flex-direction: column; gap: 0.5rem; }
+    .ctr-card h3 { margin: 0; color: #3A2404; font-size: 1.1rem; }
+    .ctr-service { display: inline-block; width: fit-content; font-size: 0.75rem; font-weight: 600; color: #606059; background: var(--bleu-pale); padding: 0.2rem 0.6rem; border-radius: 20px; }
+    .ctr-row { font-size: 0.85rem; color: #606059; line-height: 1.5; display: flex; gap: 0.5rem; }
+    .ctr-row .lbl { color: #B8B09A; flex-shrink: 0; width: 92px; font-weight: 600; }
+    .ctr-row .val { white-space: pre-line; }
+    .ctr-row a { color: #A19B80; text-decoration: none; word-break: break-all; }
+    .ctr-row a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body class="content-page">
+
+  <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+  <div class="lang-switch">
+    <button id="lang-fr" class="active">FR</button>
+    <button id="lang-en">EN</button>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="assets/logo-menu.webp" alt="Les Dauphins-sur-le-Parc">
+      <h1>Les Dauphins-sur-le-Parc</h1>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="index.html#apropos" data-i18n="nav_about">À propos</a></li>
+        <li><a href="index.html#installations" data-i18n="nav_amenities">Installations</a></li>
+        <li><a href="index.html#galerie-commerciale" data-i18n="nav_gallery">Galerie Commerciale</a></li>
+        <li class="nav-sub"><a href="businesses.html" class="nav-page-link" data-i18n="nav_full_list">Liste complète</a></li>
+        <li><a href="index.html#communaute" data-i18n="nav_community">Événements communautaires</a></li>
+        <li class="nav-sub"><a href="events.html" class="nav-page-link" data-i18n="nav_full_list">Liste complète</a></li>
+        <li><a href="index.html#valeurs" data-i18n="nav_values">Valeurs</a></li>
+        <li class="nav-sub"><a href="faq.html" data-i18n="nav_faq" class="nav-page-link">FAQ</a></li>
+        <li class="nav-sub"><a href="contractors.html" class="nav-page-link active" data-i18n="nav_contractors">Entrepreneurs approuvés</a></li>
+        <li><a href="index.html#condoweb" data-i18n="nav_condoweb">CondoWeb</a></li>
+        <li><a href="index.html#quartier" data-i18n="nav_neighborhood">Vie de quartier</a></li>
+        <li class="nav-sub"><a href="events-list.html" class="nav-page-link" data-i18n="events_full_list_title">Événements à venir</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <section class="section" id="contractors-page">
+      <div class="section-inner">
+        <div class="content-box" style="max-width:1100px;margin:0 auto;">
+          <h1 class="section-title" data-i18n="nav_contractors">Entrepreneurs approuvés</h1>
+          <p style="margin-bottom:2rem;" data-i18n="contractors_intro">Fournisseurs et entrepreneurs approuvés par l'administration pour les travaux et services de l'immeuble.</p>
+          <div id="ctr-list"></div>
+        </div>
+      </div>
+    </section>
+    <div class="ctr-footer" style="text-align:center;">
+      <img src="assets/logo-menu.webp" alt="Les Dauphins-sur-le-Parc" style="width:60px;height:auto;opacity:0.5;">
+    </div>
+  </main>
+
+  <script src="translations.js"></script>
+  <script type="module">
+    import { initMenu, initLanguage } from './js/ui.js';
+    initMenu();
+    initLanguage();
+
+    const list = document.getElementById('ctr-list');
+    const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ4NcmX74gU7ZyxGsql_ul9twGw3-Jo6xu9TvXFBluAzEuxahq_tWHcXZPULGHCeZrl1-H5tcqt8KKZ/pub?gid=0&single=true&output=csv';
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Parse CSV with proper quote handling (supports embedded newlines and commas)
+    function parseCSV(text) {
+      const rows = [];
+      let row = [], cell = '', inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQuotes) {
+          if (ch === '"') {
+            if (text[i + 1] === '"') { cell += '"'; i++; }
+            else inQuotes = false;
+          } else cell += ch;
+        } else {
+          if (ch === '"') inQuotes = true;
+          else if (ch === ',') { row.push(cell.trim()); cell = ''; }
+          else if (ch === '\n' || (ch === '\r' && text[i + 1] === '\n')) {
+            row.push(cell.trim());
+            if (row.some(c => c !== '')) rows.push(row);
+            row = []; cell = '';
+            if (ch === '\r') i++;
+          } else cell += ch;
+        }
+      }
+      row.push(cell.trim());
+      if (row.some(c => c !== '')) rows.push(row);
+      return rows;
+    }
+
+    function formatUrl(url) {
+      if (!url || !url.trim()) return '';
+      let u = url.trim();
+      if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+      return u;
+    }
+
+    function renderContractors() {
+      const lang = document.documentElement.lang || 'fr';
+      const loadingMsg = lang === 'fr' ? 'Chargement…' : 'Loading…';
+      list.innerHTML = '<p style="color:#B8B09A;font-style:italic;padding:2rem;">' + loadingMsg + '</p>';
+
+      fetch(SHEET_CSV)
+        .then(res => {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.text();
+        })
+        .then(text => {
+          const rows = parseCSV(text);
+          if (rows.length < 2) {
+            list.innerHTML = '<p style="color:#3A2404;padding:2rem;">' + (lang === 'fr' ? 'Aucun entrepreneur trouvé.' : 'No contractors found.') + '</p>';
+            return;
+          }
+
+          const headers = rows[0].map(h => String(h).toLowerCase().trim());
+          const nameIdx = headers.findIndex(h => h.includes('fournisseur'));
+          const svcIdx = headers.findIndex(h => h.includes('service'));
+          const addrIdx = headers.findIndex(h => h.includes('adresse'));
+          const phoneIdx = headers.findIndex(h => h.includes('téléphone') || h.includes('telephone') || h.includes('tél'));
+          const emailIdx = headers.findIndex(h => h.includes('courriel') || h.includes('email'));
+          const webIdx = headers.findIndex(h => h.includes('site web') || h.includes('website'));
+          const contractIdx = headers.findIndex(h => h.includes('contrat') || h.includes('contract'));
+          const activeIdx = headers.findIndex(h => h.includes('active'));
+
+          const items = rows.slice(1).filter(row => {
+            const isActive = String(row[activeIdx] || '').toUpperCase().trim();
+            return isActive === 'TRUE';
+          }).filter(row => (row[nameIdx] || '').trim() !== '');
+
+          if (items.length === 0) {
+            list.innerHTML = '<p style="color:#3A2404;padding:2rem;">' + (lang === 'fr' ? 'Aucun entrepreneur trouvé.' : 'No contractors found.') + '</p>';
+            return;
+          }
+
+          const labelName = lang === 'fr' ? 'Service' : 'Service';
+          const labelAddr = lang === 'fr' ? 'Adresse' : 'Address';
+          const labelPhone = lang === 'fr' ? 'Téléphone' : 'Phone';
+          const labelEmail = lang === 'fr' ? 'Courriel' : 'Email';
+          const labelWeb = lang === 'fr' ? 'Site web' : 'Website';
+          const labelContract = lang === 'fr' ? 'Contrat' : 'Contract';
+
+          list.innerHTML = '<div class="ctr-grid">' + items.map(row => {
+            const name = (row[nameIdx] || '').trim();
+            const service = (row[svcIdx] || '').trim();
+            const address = (row[addrIdx] || '').trim();
+            const phone = (row[phoneIdx] || '').trim();
+            const email = (row[emailIdx] || '').trim();
+            const website = formatUrl(row[webIdx]);
+            const contract = (row[contractIdx] || '').trim();
+
+            return `
+            <div class="ctr-card">
+              <h3>${escapeHtml(name)}</h3>
+              ${service ? `<span class="ctr-service">${escapeHtml(service)}</span>` : ''}
+              ${address ? `<div class="ctr-row"><span class="lbl">${labelAddr}</span><span class="val">${escapeHtml(address)}</span></div>` : ''}
+              ${phone ? `<div class="ctr-row"><span class="lbl">${labelPhone}</span><span class="val">${escapeHtml(phone)}</span></div>` : ''}
+              ${email ? `<div class="ctr-row"><span class="lbl">${labelEmail}</span><span class="val"><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></span></div>` : ''}
+              ${website ? `<div class="ctr-row"><span class="lbl">${labelWeb}</span><span class="val"><a href="${escapeHtml(website)}" target="_blank" rel="noopener">${escapeHtml(website.replace(/^https?:\/\//, ''))}</a></span></div>` : ''}
+              ${contract ? `<div class="ctr-row"><span class="lbl">${labelContract}</span><span class="val">${escapeHtml(contract)}</span></div>` : ''}
+            </div>`;
+          }).join('') + '</div>';
+        })
+        .catch(err => {
+          console.error('Contractors fetch failed:', err);
+          list.innerHTML = '<p style="color:#3A2404;padding:2rem;">' + (lang === 'fr' ? 'Impossible de charger les entrepreneurs.' : 'Unable to load contractors.') + '</p>';
+        });
+    }
+
+    renderContractors();
+
+    document.addEventListener('languagechanged', () => {
+      renderContractors();
+    });
+  </script>
+</body>
+</html>

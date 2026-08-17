@@ -330,21 +330,13 @@ export async function fetchFAQData() {
     try {
       const rows = await fetchCSV(registry.office.url, CACHE_PREFIX + 'office');
       const parsed = parseSheet(rows);
-      const hours = sheetToHours(parsed);
       const hasClosures = Object.keys(parsed.closures).length > 0;
-      // Pause dîner (cols Break start/end) : découper la plage en deux plages distinctes
-      if (hasClosures) {
-        for (const day of Object.keys(parsed.closures)) {
-          const h = hours[day];
-          if (!h || h.toLowerCase() === 'closed') continue;
-          const [open, close] = h.split(' - ').map(s => s.trim());
-          const [breakStart, breakEnd] = parsed.closures[day].split(' - ').map(s => s.trim());
-          if (open && close && breakStart && breakEnd) {
-            hours[day] = [`${open} - ${breakStart}`, `${breakEnd} - ${close}`];
-          }
-        }
-      }
-      officeData = { business_hours: hours, closures: hasClosures ? parsed.closures : null };
+      officeData = {
+        business_hours: sheetToHours(parsed),
+        closures: hasClosures ? parsed.closures : null,
+        cleaning_note_fr: parsed.info.cleaning_note_fr || parsed.info.description_fr || parsed.info.description || '',
+        cleaning_note_en: parsed.info.cleaning_note_en || parsed.info.description_en || parsed.info.description || ''
+      };
       officeHolidays = parsed.holidays;
     } catch {}
   }

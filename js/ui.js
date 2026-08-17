@@ -355,13 +355,13 @@ export function initDayPlanners(faqData = {}) {
       const legendKey = type === 'admin' ? 'planner_legend_lunch' : 'planner_legend_cleaning';
       const fallback = type === 'admin' ? '■ Lunch time' : '■ Cleaning time';
       const legendText = window.translations?.[lang]?.[legendKey] || fallback;
-      const existingLegend = planner.parentElement.querySelector('.planner-legend');
-      if (!existingLegend) {
-        const legend = document.createElement('div');
+      let legend = planner.parentElement.querySelector('.planner-legend');
+      if (!legend) {
+        legend = document.createElement('div');
         legend.className = 'planner-legend';
-        legend.textContent = legendText;
         planner.parentElement.appendChild(legend);
       }
+      legend.textContent = legendText;
     }
   });
 }

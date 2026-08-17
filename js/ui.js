@@ -1,4 +1,4 @@
-import { formatBusinessHours, escapeHtml, getDayLabels, isCurrentlyOpen, getLocalDateStr } from './utils.js';
+import { formatBusinessHours, escapeHtml, getDayLabels, isCurrentlyOpen, getLocalDateStr, localizeClosed } from './utils.js';
 
 /* ========== SIDEBAR MENU ========== */
 export function initMenu() {
@@ -72,7 +72,14 @@ export function initLanguage() {
 
   btnEn.addEventListener('click', () => updateDOM('en'));
   btnFr.addEventListener('click', () => updateDOM('fr'));
-  updateDOM(localStorage.getItem('preferred-lang') || 'fr');
+
+  // Priority: URL parameter > localStorage > default 'fr'
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  const initialLang = urlLang === 'en' || urlLang === 'fr'
+    ? urlLang
+    : (localStorage.getItem('preferred-lang') || 'fr');
+  updateDOM(initialLang);
 }
 
 /* ========== LIGHTBOX ========== */
@@ -149,6 +156,13 @@ export function initScrollReveal() {
   document.querySelectorAll('.content-box, .carousel-container').forEach(el => {
     observer.observe(el);
   });
+}
+
+/* Affiche les heures sans les minutes quand elles sont :00 (ex: 11:00 AM → 11 AM) */
+function formatHoursDisplay(val) {
+  const stripMinutes = (s) => String(s).replace(/(\d{1,2}):00(?=\s*(?:AM|PM))/gi, '$1');
+  if (Array.isArray(val)) return val.map(stripMinutes).join(' & ');
+  return stripMinutes(val);
 }
 
 /* Helper to parse "08:00 AM - 06:00 PM" into { open: 8, close: 18 } */
@@ -279,7 +293,7 @@ export function initDayPlanners(faqData = {}) {
         const dayHoliday = isDateHoliday(holidays, weekDates[i], type);
         const display = dayHoliday
           ? `${lang === 'fr' ? 'Fermé' : 'Closed'} — ${escapeHtml(dayHoliday)}`
-          : val;
+          : localizeClosed(type === 'admin' ? formatHoursDisplay(val) : (Array.isArray(val) ? val.join(' & ') : val), lang);
         const cls = (dayHoliday ? 'bh-holiday' : '') + (i === currentDay ? ' bh-today' : '');
         return `<div class="bh-row${cls ? ' ' + cls : ''}"><span class="bh-day">${labels[i]}</span><span class="bh-time">${escapeHtml(display)}</span></div>`;
       }).join('');

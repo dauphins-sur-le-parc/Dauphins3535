@@ -330,7 +330,13 @@ export async function fetchFAQData() {
     try {
       const rows = await fetchCSV(registry.office.url, CACHE_PREFIX + 'office');
       const parsed = parseSheet(rows);
-      officeData = { business_hours: sheetToHours(parsed) };
+      const hasClosures = Object.keys(parsed.closures).length > 0;
+      officeData = {
+        business_hours: sheetToHours(parsed),
+        closures: hasClosures ? parsed.closures : null,
+        cleaning_note_fr: parsed.info.cleaning_note_fr || parsed.info.description_fr || parsed.info.description || '',
+        cleaning_note_en: parsed.info.cleaning_note_en || parsed.info.description_en || parsed.info.description || ''
+      };
       officeHolidays = parsed.holidays;
     } catch {}
   }

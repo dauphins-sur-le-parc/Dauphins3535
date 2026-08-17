@@ -1,4 +1,4 @@
-import { escapeHtml, formatBusinessHours, isCurrentlyOpen, getDayLabels, getLocalDateStr } from './utils.js';
+import { escapeHtml, formatBusinessHours, isCurrentlyOpen, getDayLabels, getLocalDateStr, localizeClosed } from './utils.js';
 
 const EVENTS_CACHE_KEY = 'dauphins_events_cache';
 const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // Refresh from API weekly
@@ -664,7 +664,7 @@ export async function initBusinessGallery() {
           const dayHoliday = isDateHoliday(bizHolidays, weekDates[i]);
           const display = dayHoliday
             ? (lang === 'fr' ? 'Fermé — ' : 'Closed — ') + dayHoliday
-            : v;
+            : localizeClosed(v, lang);
           const cls = (dayHoliday ? 'biz-holiday' : '') + (i === todayIdx ? ' bh-today' : '');
           return `<div class="bh-row${cls ? ' ' + cls : ''}"><span class="bh-day">${(getDayLabels(lang)[i] || '').substring(0,3)}</span><span> ${display}</span></div>`;
         }).filter(Boolean).join('') : '';

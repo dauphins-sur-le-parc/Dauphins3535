@@ -350,10 +350,11 @@ export function initDayPlanners(faqData = {}) {
 
     planner.innerHTML = axis + `<div class="columns-container">${columnsHtml}</div>`;
 
-    // Add cleaning legend if closures exist
+    // Add closure legend if closures exist (lunch for admin, cleaning for pool)
     if (closuresData && Object.values(closuresData).some(v => v)) {
-      const legendKey = `planner_legend_cleaning`;
-      const legendText = window.translations?.[lang]?.[legendKey] || '■ Cleaning time';
+      const legendKey = type === 'admin' ? 'planner_legend_lunch' : 'planner_legend_cleaning';
+      const fallback = type === 'admin' ? '■ Lunch time' : '■ Cleaning time';
+      const legendText = window.translations?.[lang]?.[legendKey] || fallback;
       const existingLegend = planner.parentElement.querySelector('.planner-legend');
       if (!existingLegend) {
         const legend = document.createElement('div');

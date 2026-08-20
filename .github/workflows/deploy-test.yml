@@ -20,18 +20,6 @@ jobs:
         with:
           ref: preview
 
-      - name: Inject password gate
-        shell: bash
-        run: |
-          if [ -f pw-gate-snippet.html ]; then
-            node -e "
-              const fs = require('fs');
-              const html = fs.readFileSync('index.html', 'utf8');
-              const gate = fs.readFileSync('pw-gate-snippet.html', 'utf8');
-              fs.writeFileSync('index.html', html.replace('</head>', gate + '\n</head>'));
-            "
-          fi
-
       - name: Ensure deploy commit
         run: date > .deploy-timestamp
 
@@ -42,4 +30,4 @@ jobs:
           publish_dir: .
           destination_dir: test
           keep_files: true
-          commit_message: "Deploy BjornTest to /test"
+          commit_message: "Deploy Preview to /test"

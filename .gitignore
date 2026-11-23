@@ -3,3 +3,8 @@
 
 # OS generated files
 .DS_Store
+
+# Claude skill working directories; simple enttry to ignore files from https://github.com/couimet/my-claude-skills
+.claude-work/
+
+.history
